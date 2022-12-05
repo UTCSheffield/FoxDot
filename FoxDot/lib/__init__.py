@@ -6,7 +6,7 @@ with open((os.path.join(os.path.dirname(__file__), ".version")), "r") as f:
 
 import logging
 from .Code import *
-
+from math import log, floor ,ceil
 FoxDotCode.namespace = globals()
 
 from .TempoClock import *
@@ -158,7 +158,11 @@ def soloBeats_group(self,n=8, end=False):
                 Clock.schedule(player.stop, soloEnd)
     
     Clock.schedule(self.solo, Clock.now())
+
+@player_method
+def drop(self, buildup=4,target=0.5,euclid=False,solo=2,end=False):
     
+    self.dur = PBuildUp(Clock.bar_length(), buildup, target, euclid)
 
 def update_foxdot_clock(clock):
     """ Tells the TimeVar, Player, and MidiIn classes to use

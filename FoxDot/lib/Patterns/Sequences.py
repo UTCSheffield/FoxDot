@@ -13,7 +13,7 @@ from __future__ import absolute_import, division, print_function
 
 import random
 import math
-
+from math import log, floor ,ceil
 from .Main import *
 from .PGroups import *
 from .Operations import *
@@ -284,6 +284,35 @@ def PBeat(string, start=0, dur=0.5):
     if start != 0:
         pattern = pattern.rotate(int(start))
     return pattern * dur
+
+@loop_pattern_func
+def PBuildUp(bar_length=4, buildup=4, target=0.5, euclid=False, repeat=1):
+    #print("bar_length", bar_length, "buildup",buildup, "target",target, "euclid",euclid, "repeat",repeat)
+    pat = Pattern() 
+    if buildup  < 2:
+        pat = P[[target] * int( bar_length / target )]
+    else:
+        number = target
+        if target == 1: 
+            number = 2 
+        start = log(bar_length, number) 
+        end = log(target, number) 
+        step = (end - start)/(buildup - 1)
+        for i in range(buildup): 
+            power = start + (i * step)
+            beats = ceil( bar_length / pow(number,power) )
+            newdur = bar_length / beats
+            if euclid:
+                #print( bar_length / pow(number,power), beats )
+                nextbar =  PDur(beats, bar_length) * bar_length
+                #print(" nextbar", nextbar)
+            else:
+                nextbar = P[[newdur] *beats]
+            #print(nextbar, len(nextbar)) 
+            pat.extend(nextbar.loop(repeat) )
+    print(pat, len(pat)) 
+    return pat 
+
 
 @loop_pattern_func
 def PDur(n, k, start=0, dur=0.25):
