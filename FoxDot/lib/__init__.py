@@ -167,7 +167,7 @@ def drop(self, buildup=4,target=0.5,euclid=False,solo=2,end=False):
 '''
 
 @player_method
-def drop(self, buildup=4,target=0.5,euclid=False,solo=2,end=False, player=None, players=[]):
+def drop(self, buildup=4,target=0.5,euclid=False,solo=2,end=True, player=None, players=[]):
     if player:
         players.append(player)
 
