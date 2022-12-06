@@ -158,11 +158,46 @@ def soloBeats_group(self,n=8, end=False):
                 Clock.schedule(player.stop, soloEnd)
     
     Clock.schedule(self.solo, Clock.now())
-
+'''#simple version
 @player_method
 def drop(self, buildup=4,target=0.5,euclid=False,solo=2,end=False):
+    newdurs = PBuildUp(Clock.bar_length(), buildup, target, euclid)
+    newdurs.extend(P[[target] * (int( Clock.bar_length() / target ) * solo)])
+    self.dur =newdurs
+'''
+
+@player_method
+def drop(self, buildup=4,target=0.5,euclid=False,solo=2,end=False, player=None, players=[]):
+    if player:
+        players.append(player)
+
+    buildUpStart = Clock.now()#next_bar()
+    bar_length = Clock.bar_length()
     
-    self.dur = PBuildUp(Clock.bar_length(), buildup, target, euclid)
+    newdurs = PBuildUp(bar_length, buildup, target, euclid)
+    newdurs.extend(P[[target] * (int( (1+solo * bar_length) / target ))])
+    
+    soloStart = buildUpStart + (buildup * bar_length)
+    soloEnd = soloStart + (solo * bar_length)
+    
+    for player in players:
+        currentamp = float(player.amp)
+        Clock.schedule(lambda : setattr(player, "amp", 0), buildUpStart)
+        Clock.schedule(lambda : setattr(player, "amp", currentamp), soloEnd)
+
+    #self.event_n = 0 #?
+    #self.notes_played = 0 #?
+    Clock.schedule(lambda : setattr(self, "event_n", 0), buildUpStart)
+    Clock.schedule(lambda : setattr(self, "notes_played", 0), buildUpStart)
+    
+    Clock.schedule(lambda : setattr(self, "dur", newdurs), buildUpStart)
+    Clock.schedule(lambda : setattr(self, "dur", target), soloStart)
+    Clock.schedule(self.solo, soloStart)
+    Clock.schedule(self.metro.solo.reset, soloEnd)
+    if(end):
+        Clock.schedule(self.stop, soloEnd)
+
+
 
 def update_foxdot_clock(clock):
     """ Tells the TimeVar, Player, and MidiIn classes to use
