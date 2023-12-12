@@ -171,16 +171,18 @@ def drop(self, buildup=4,target=0.25,euclid=False,solo=2,end=True, player=None, 
     if player:
         players.append(player)
 
-    #buildUpStart = Clock.now()#next_bar()
+
     buildUpStart = Clock.next_bar()
     bar_length = min(8, Clock.bar_length())
     orgdurs = getattr(self, "dur")
+    print("orgdurs", orgdurs)
+
+    currentamp = float(self.amp)
+    self.amp = 0
+    Clock.schedule(lambda : setattr(self, "amp", currentamp), buildUpStart)
 
     newdurs = PBuildUp(bar_length, buildup, target, euclid)
-    #solofill = P[[target] * (int( (1+solo * bar_length) / target ))]
-    #print("solofill", solofill) 
-    #newdurs.extend(solofill)
-    
+
     soloStart = buildUpStart + (buildup * bar_length)
     soloEnd = soloStart + (solo * bar_length)
     
@@ -193,10 +195,10 @@ def drop(self, buildup=4,target=0.25,euclid=False,solo=2,end=True, player=None, 
     #self.notes_played = 0 #?
     Clock.schedule(lambda : setattr(self, "event_n", 0), buildUpStart)
     Clock.schedule(lambda : setattr(self, "notes_played", 0), buildUpStart)
-    
+    #Clock.schedule(self.play, buildUpStart)
     Clock.schedule(lambda : setattr(self, "dur", newdurs), buildUpStart)
     Clock.schedule(lambda : setattr(self, "dur", target), soloStart)
-    Clock.schedule(lambda : setattr(self, "dur", orgdurs), soloEnd)
+    Clock.schedule(lambda : setattr(self, "dur", float(orgdurs)), soloEnd)
     Clock.schedule(self.solo, soloStart)
     Clock.schedule(self.metro.solo.reset, soloEnd)
     if(end):
