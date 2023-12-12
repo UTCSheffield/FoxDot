@@ -286,8 +286,12 @@ def PBeat(string, start=0, dur=0.5):
     return pattern * dur
 
 @loop_pattern_func
-def PBuildUp(bar_length=4, buildup=4, target=0.5, euclid=False, repeat=1):
-    #print("bar_length", bar_length, "buildup",buildup, "target",target, "euclid",euclid, "repeat",repeat)
+def PBuildUp(bar_length=4, buildup=4, target=0.25, euclid=True, repeat=1):
+    """ Returns a pattern of durations based on a classic EDM buildup 
+    `PBuildUp()` returns `P[4, 2, 1, 1, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25]`
+    `PBuildUp(4,4,0.25,True,1)` returns the same
+    PBuildUp(bar_length=4, buildup=4, target=0.25, euclid=True, repeat=1)
+    """
     pat = Pattern() 
     if buildup  < 2:
         pat = P[[target] * int( bar_length / target )]
@@ -304,13 +308,13 @@ def PBuildUp(bar_length=4, buildup=4, target=0.5, euclid=False, repeat=1):
             newdur = bar_length / beats
             if euclid:
                 #print( bar_length / pow(number,power), beats )
-                nextbar =  PDur(beats, bar_length) * bar_length
+                nextbar =  PDur(beats, bar_length, 0, 1).reverse()
                 #print(" nextbar", nextbar)
             else:
                 nextbar = P[[newdur] *beats]
-            #print(nextbar, len(nextbar)) 
+            print(nextbar, len(nextbar)) 
             pat.extend(nextbar.loop(repeat) )
-    print(pat, len(pat)) 
+    #print(pat, len(pat)) 
     return pat 
 
 
