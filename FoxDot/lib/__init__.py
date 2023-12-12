@@ -167,15 +167,19 @@ def drop(self, buildup=4,target=0.5,euclid=False,solo=2,end=False):
 '''
 
 @player_method
-def drop(self, buildup=4,target=0.5,euclid=False,solo=2,end=True, player=None, players=[]):
+def drop(self, buildup=4,target=0.25,euclid=False,solo=2,end=True, player=None, players=[]):
     if player:
         players.append(player)
 
-    buildUpStart = Clock.now()#next_bar()
-    bar_length = Clock.bar_length()
-    
+    #buildUpStart = Clock.now()#next_bar()
+    buildUpStart = Clock.next_bar()
+    bar_length = min(8, Clock.bar_length())
+    orgdurs = getattr(self, "dur")
+
     newdurs = PBuildUp(bar_length, buildup, target, euclid)
-    newdurs.extend(P[[target] * (int( (1+solo * bar_length) / target ))])
+    #solofill = P[[target] * (int( (1+solo * bar_length) / target ))]
+    #print("solofill", solofill) 
+    #newdurs.extend(solofill)
     
     soloStart = buildUpStart + (buildup * bar_length)
     soloEnd = soloStart + (solo * bar_length)
@@ -192,6 +196,7 @@ def drop(self, buildup=4,target=0.5,euclid=False,solo=2,end=True, player=None, p
     
     Clock.schedule(lambda : setattr(self, "dur", newdurs), buildUpStart)
     Clock.schedule(lambda : setattr(self, "dur", target), soloStart)
+    Clock.schedule(lambda : setattr(self, "dur", orgdurs), soloEnd)
     Clock.schedule(self.solo, soloStart)
     Clock.schedule(self.metro.solo.reset, soloEnd)
     if(end):
